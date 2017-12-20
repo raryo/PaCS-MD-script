@@ -1,120 +1,101 @@
 # vim:set foldmethod=marker:
--*- mode: perl;-*-
 use base qw (core limit);
 system "source /lustre/gi58/i58005/apps/gmx2016_3/bin/GMXRC.bash";
 
-###########################
-# User defined parameters #
-###########################
+##############################################################################
+# User defined parameters                                                    # 
+##############################################################################
 
 # define PaCS MAX cycle
-my $MAX_CYCLE = 10;
+my $MAX_CYCLE    = 5;
 # define PaCS number of threads
 my $PACS_THREADS = 2;
 
 # define index path
 my $INDEX_FILE = "../grotop/index.ndx";
 # define mdp path
-my $RUNSET = "./runset.mdp";
+my $RUNSET     = "./runset.mdp";
 # define grompp script
-my $GROMPP = "./grompp_bush.sh";
+my $GROMPP     = "./grompp_bush.sh";
 # define short run script
-my $SHORTRUN = "./short_run_bush.sh";
+my $SHORTRUN   = "./short_run_bush.sh";
 # define initial structure
-my $INIT_GRO = "../heat/md9.gro";
+my $INIT_GRO   = "../martini_configure/eq/eq.gro";
 # define shortrun time (ps)
-my $RUN_TIME = 10;
+my $RUN_TIME   = 500;
 # define ranking key prefix
-my $KEY_PREFIX = "dist";
+my $XVG_PREFIX = "dist";
+# defin mesure script
+my $MESURE     = "./mesure.sh";
+#define generate next init script
+my $GENINI     = "./generate_inits.pl";
+# define the number of frames of trajectry
+#my $NUM_FRAMES = 100;
 
 # define qsub setting
-#my $QUEUE = "l-regular";
-my $QUEUE = "h-small";
+# define long queue to run mimd.
+my $QUEUE_LONG  = "h-small";
+# define short queue to run other process
+my $QUEUE_SHORT = "h-debug";
 # define group id
-my $GROUP_ID = "gi58";
+my $GROUP_ID    = "gi58";
 # define short_run's limit time
-my $LIMIT_TIME = '00:30:00';
+my $LIMIT_TIME  = '0:20:00';
 
 # define resource
 # following is equal to select=1:ncpus=36:mpiprocs=6:ompthreads=6
 # define num node
 my $JS_PHNODE = '1';
 # define num core per proc
-my $JS_CPU = '6';
+my $JS_CPU    = '6';
 # define num thread per proc
 my $JS_THREAD = '6';
 # define num procs 
-my $JS_NODE = '6';
+my $JS_NODE   = '6';
 
-
-&limit::initialize($PACS_THREADS);
+&limit::initialize(8);
 
 my $cycle = 0;
 my @next_inits;
 
-# check if $RUNTIME is equal to dt*nsteps in $RUNSET
-my $time = `grep -E "nsteps|dt" $RUNSET | awk \'BEGIN{val=1} {val*=\$3} END{print val}\'`;
-$RUN_TIME == $time or die "\$RUN_TIME is NOT equal to dt*nsteps in $RUNSET\n";
+# check if $RUN_TIME is equal to dt*nsteps in $RUNSET
+my $time = `grep -E "nsteps|dt" $RUNSET | 
+            awk \'BEGIN{val=1} {val*=\$3} END{print val}\'`;
+$RUN_TIME == $time or 
+            die "\$RUN_TIME($RUN_TIME) != dt*nsteps($time) in $RUNSET\n";
 
-# main loop
+
+
+###############################################################################
+#             main loop                                                       #
+###############################################################################
+
 while ( $cycle <= $MAX_CYCLE ){
     # Pre short run, for the first run.
     if ($cycle == 0){
-        my %template = (
-            'id'   => 'pre_run',
-            'JS_phnode'     => $JS_PHNODE,
-            'JS_cpu'        => $JS_CPU,
-            'JS_thread'     => $JS_THREAD,
-            'JS_node'       => $JS_NODE,
-            'JS_queue'      => $QUEUE,
-            'JS_group'      => $GROUP_ID,
-            'JS_limit_time' => $LIMIT_TIME,
-            'exe0'          => $GROMPP,
-            'arg0_0'        => "$INIT_GRO 0 0",
-            'exe1'          => "$SHORTRUN 0 0",
-            'before'        => sub { mkdir "cyc$cycle" },
-            'after'         => sub { system "mv pre_run_* cyc$cycle" },
-        );
-        &prepare_submit_sync(%template);
-        system "rm -f pre_run_return";
-        &mesure($cycle, 0);
+        &prepare_submit_sync(template('pre_run', $cycle));
     } 
+    # start MIMD
     else {
-        my $prev = $cycle - 1;
+        # when restarted
         if (!@next_inits){
-            @next_inits = &get_next_init_structure($prev);
+            @next_inits = &get_next_gros($cycle - 1);
         }
-        mkdir "cyc$cycle";
-        print "d: @next_inits\n";
-        my %template = (
-            'id@'           => sub { "cyc$cycle-$VALUE[0]" },
-            'JS_phnode'     => $JS_PHNODE,
-            'JS_cpu'        => $JS_CPU,
-            'JS_thread'     => $JS_THREAD,
-            'JS_node'       => $JS_NODE,
-            'JS_queue'      => $QUEUE,
-            'JS_group'      => $GROUP_ID,
-            'JS_limit_time' => $LIMIT_TIME,
-            'exe0'          => $GROMPP,
-            'arg0_0@'       => sub { 
-                "cyc$prev/$next_inits[$VALUE[0]].gro $cycle $VALUE[0]"
-            } ,
-            'exe1'          => $SHORTRUN,
-            'arg1_0@'       => sub { "$cycle $VALUE[0]" },
-            'RANGE0'        => [0..$PACS_THREADS-1],
-            'before'        => sub { },
-        );
-        &prepare_submit_sync(%template);
-        system "rm -f pre_run_return";
-        system "mv cyc$cycle-${_}_* cyc$cycle" for (0..$PACS_THREADS-1);
-        &mesure($cycle, $_) for (0 .. $PACS_THREADS-1);
+        # MIMD run 
+        &prepare_submit_sync(template('mimd', $cycle));
     } 
+    # merge xvg files to make ranking
     &merge_xvg($cycle);
-    @next_inits = &get_next_init_structure($cycle); 
+    # generate next initial structres
+    &prepare_submit_sync(template('gen', $cycle));
+    # get next gros
+    @next_inits = &get_next_gros($cycle);
+    
     # check if all next-init structres are available.
     my @found_gros =  glob("cyc$cycle/*-*-*.gro");
     @found_gros == $PACS_THREADS
         or die "Something is wrong in generate next-step-init structres.\n";
+    # go on to the next cycle
     $cycle++;
 }
 
@@ -122,55 +103,98 @@ sub loop_test {
     my $best_st = shift;
 }
 
-# mesure ::: $cycle,$thread => void:define mesure method here{{{
-sub mesure {
-    my ($cycle, $threads) = @_;
-    system "gmx distance -f cyc$cycle/${cycle}-${threads}.trr ".
-                        "-s cyc$cycle/${cycle}-${threads}.tpr ".
-                        "-b 0 -e $RUN_TIME ".
-                        "-oall cyc$cycle/$KEY_PREFIX${cycle}-${threads}.xvg << zzz\n".
-                            "atomnr 5391 plus atomnr 30990\n".
-                        "zzz";
-                        # 30990: UN1-term,  5391:NAP,  25991: ADP
 
-    # when use RMSD
-    #system "gmx rms  -f cyc$cycle/w${cycle}-${threads}.trr ".
-    #                "-s target.pdb ".
-    #                "-b 0 -e $RUN_TIME ".
-    #                "-o cyc${cycle}/${KEY_PREFIX}${cycle}-${threads}.xvg << zzz\n".
-    #                    "1\n".
-    #                    "1\n".
-    #                "zzz";
-}#}}}
 
-# merge_xvg ::: $cycle => void:merge xvgs to mesure{{{
+
+
+###############################################################################
+#                sub routines                                                 #
+###############################################################################
+
+# merge_xvg
 sub merge_xvg {
     my $cycle = shift;
-    my @xvgs = glob "cyc${cycle}/${KEY_PREFIX}*.xvg";
+    $XVG_PREFIX = 'rmsd';
+    my @csvs    = glob "cyc$cycle/${XVG_PREFIX}*.csv";
     # merge xvgs
-    foreach  (@xvgs){
-        my ($id) = ($_ =~ /cyc${cycle}\/${KEY_PREFIX}([\d\-]+)\.xvg/);
-        system "tail -".($RUN_TIME+1)." $_ | sed \"s/^/$id/g\" >> cyc${cycle}/ranking";
+    foreach  (@csvs){
+        my ($id) = ($_ =~ /cyc$cycle\/${XVG_PREFIX}([\d\-]+)\.csv/);
+        system "sed -e '1,1d; s/,/\t/g' $_ |".
+               "sed \"s/^/$id\t/g\" >> cyc$cycle/ranking";
     }
-}#}}}
+    $XVG_PREFIX = 'dist';
+}
 
-#get_next_init_structure >>> $cycle => void: generate next init structures, which were highly ranked in the $cycle{{{
-sub get_next_init_structure {
+# get_next_gros
+sub get_next_gros {
     my $cycle = shift;
     my @high_rankers = `sort -k3n,3 cyc${cycle}/ranking | head -$PACS_THREADS`;
     @ranking = ();
     foreach (@high_rankers){
         my ($c, $t, $s, @o) = split /[\-\s]+/;
         my $gro_file = sprintf "%s-%s-%d", $c, $t, $s;
-        system "gmx trjconv -f cyc$c/${c}-${t}.trr ".
-                           "-s cyc$c/${c}-${t}.tpr ".
-                           "-o cyc$c/$gro_file.gro -n $INDEX_FILE ". 
-                           "-b $s -e $s << zzz\n".
-                               "0\n".
-                           "zzz";
         push @ranking, $gro_file;
     }
-    return @ranking;
-}#}}}
+}
 
+# template ::: $mode, $cyle => %template {{{
+sub template { 
+    my ($mode, $cycle) = @_;
+    my $prev = $cycle;
+    if ($mode eq 'pre_run'){
+        return  (
+            'id'            => 'pre_run',
+            'JS_phnode'     => $JS_PHNODE,
+            'JS_cpu'        => $JS_CPU,
+            'JS_thread'     => $JS_THREAD,
+            'JS_node'       => $JS_NODE,
+            'JS_queue'      => $QUEUE_LONG,
+            'JS_group'      => $GROUP_ID,
+            'JS_limit_time' => $LIMIT_TIME,
+            'exe0'          => "$GROMPP $INIT_GRO 0 0",
+            'exe1'          => "$SHORTRUN 0 0 ",
+            'exe2'          => "$MESURE $cycle 0 $RUN_TIME $XVG_PREFIX",
+            'before'        => sub { mkdir "cyc$cycle" },
+            'after'         => sub { system "mv pre_run_* cyc$cycle" },
+        );
+    } elsif ($mode eq 'mimd'){
+        return (
+            'id@'           => sub { "cyc$cycle-$VALUE[0]" },
+            'JS_phnode'     => $JS_PHNODE,
+            'JS_cpu'        => $JS_CPU,
+            'JS_thread'     => $JS_THREAD,
+            'JS_node'       => $JS_NODE,
+            'JS_queue'      => $QUEUE_LONG,
+            'JS_group'      => $GROUP_ID,
+            'JS_limit_time' => $LIMIT_TIME,
+            'exe0'          => $GROMPP,
+            'arg0_0@'       => sub { 
+                "cyc$prev/$next_inits[$VALUE[0]].gro $cycle $VALUE[0]",
+            },
+            'exe1'          => $SHORTRUN,
+            'arg1_0@'       => sub { "$cycle $VALUE[0]" },
+            'exe2'          => "$MESURE $cycle $VALUE[0] $RUN_TIME $XVG_PREFIX",
+            'RANGE0'        => [0 .. $PACS_THREADS-1],
+            'before'        => sub { mkdir "cyc$cycle" },
+            'after'         => sub { 
+                system "rm -f pre_run_return; mv cyc$cycle-*_* cyc$cycle;" 
+            },
+        );
+    } elsif ($mode eq 'gen'){
+        return (
+            'id'            => '_generate',
+            'JS_phnode'     => $JS_PHNODE,
+            'JS_cpu'        => $JS_CPU,
+            'JS_thread'     => $JS_THREAD,
+            'JS_node'       => $JS_NODE,
+            'JS_queue'      => $QUEUE_SHORT,
+            'JS_group'      => $GROUP_ID,
+            'JS_limit_time' => '00:30:00',
+            'exe0'          => "$GENINI $cycle $PACS_THREADS",
+            'after'         => sub { system "mv _gen* cyc$cycle" },
+        );
+    } else {
+        exit 1;
+    } 
 
+} #}}}

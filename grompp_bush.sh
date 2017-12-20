@@ -9,8 +9,7 @@ threads=$3
 gmx grompp \
     -f runset.mdp \
     -c $gro_file \
-    -p ../../grotop/LysYZW.top \
-    -n ../../grotop/index.ndx \
+    -p ../solvate/hp1a_cg_solv.top \
     -o cyc${cycle}/${cycle}-${threads}.tpr \
     -po cyc${cycle}/${cycle}-${threads}.out.mdp \
    -maxwarn 1
