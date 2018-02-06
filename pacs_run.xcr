@@ -21,6 +21,8 @@ my $GROMPP     = "./grompp_bush.sh";
 my $SHORTRUN   = "./short_run_bush.sh";
 # define initial structure
 my $INIT_GRO   = "../martini_configure/eq/eq.gro";
+# define initial topology
+my $TOPOLOGY   = "../solvate/hp1a_cg_solv.top";
 # define shortrun time (ps)
 my $RUN_TIME   = 500;
 # define ranking key prefix
@@ -34,7 +36,7 @@ my $GENINI     = "./generate_inits.pl";
 
 # define qsub setting
 # define long queue to run mimd.
-my $QUEUE_LONG  = "h-small";
+my $QUEUE_LONG  = "h-debug";
 # define short queue to run other process
 my $QUEUE_SHORT = "h-debug";
 # define group id
@@ -135,12 +137,13 @@ sub get_next_gros {
         my $gro_file = sprintf "%s-%s-%d", $c, $t, $s;
         push @ranking, $gro_file;
     }
+    return @ranking;
 }
 
 # template ::: $mode, $cyle => %template {{{
 sub template { 
     my ($mode, $cycle) = @_;
-    my $prev = $cycle;
+    my $prev = $cycle - 1;
     if ($mode eq 'pre_run'){
         return  (
             'id'            => 'pre_run',
@@ -151,7 +154,7 @@ sub template {
             'JS_queue'      => $QUEUE_LONG,
             'JS_group'      => $GROUP_ID,
             'JS_limit_time' => $LIMIT_TIME,
-            'exe0'          => "$GROMPP $INIT_GRO 0 0",
+            'exe0'          => "$GROMPP $INIT_GRO $TOPOLOGY 0 0",
             'exe1'          => "$SHORTRUN 0 0 ",
             'exe2'          => "$MESURE $cycle 0 $RUN_TIME $XVG_PREFIX",
             'before'        => sub { mkdir "cyc$cycle" },
@@ -169,13 +172,14 @@ sub template {
             'JS_limit_time' => $LIMIT_TIME,
             'exe0'          => $GROMPP,
             'arg0_0@'       => sub { 
-                "cyc$prev/$next_inits[$VALUE[0]].gro $cycle $VALUE[0]",
+                "cyc$prev/$next_inits[$VALUE[0]].gro $TOPOLOGY $cycle $VALUE[0]",
             },
             'exe1'          => $SHORTRUN,
             'arg1_0@'       => sub { "$cycle $VALUE[0]" },
-            'exe2'          => "$MESURE $cycle $VALUE[0] $RUN_TIME $XVG_PREFIX",
+            'exe2'          => $MESURE,
+            'arg2_0@'       => sub { "$cycle $VALUE[0] $RUN_TIME $XVG_PREFIX" },
             'RANGE0'        => [0 .. $PACS_THREADS-1],
-            'before'        => sub { mkdir "cyc$cycle" },
+            'before'        => sub { mkdir "cyc$cycle"; },
             'after'         => sub { 
                 system "rm -f pre_run_return; mv cyc$cycle-*_* cyc$cycle;" 
             },
