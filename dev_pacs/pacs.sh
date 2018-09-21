@@ -1,9 +1,9 @@
 # vim:set foldmethod=marker:
-#!/bin/sh
+#!/bin/bash -xv
 #PBS -l nodes=16:ppn=16
-cd $PBS_O_WORKDIR
-source /home/rshimura/apps/gmx2016_3/bin/GMXRC.bash
-export OMP_NUM_THREADS=1
+#cd $PBS_O_WORKDIR
+#source /home/rshimura/apps/gmx2016_3/bin/GMXRC.bash
+#export OMP_NUM_THREADS=1
 
 
 #################################################
@@ -29,12 +29,17 @@ RANK_FUNC="./ranking.sh"
 #################################################
 
 # MIMD run time i.e. The number of snapshots to be output
-MIMD_TIME=100
+MIMD_TIME='0.1'
 # The number of thread
 PACS_THREADS=8
 # PaCS terinate condition
-func isFullfill {
-    
+function isFullfill() {
+    local c=$1
+    if [ $c -ge 150 ]; then
+        return 1
+    else
+        return 0
+    fi
 }
 
 
@@ -43,16 +48,10 @@ func isFullfill {
 #################################################
 
 # Is nsteps * dt == $MIMD_RUN ?
-t=$(grep -E "nsteps|dt") $MDP_FILE |
-    awk \'BEGIN{tmp=1} {tmp*\$3} END{print t}\')
+t=$(grep -E "nsteps|dt" $MDP_FILE | awk 'BEGIN{tmp=1} {tmp*=$3} END{print t}')
+echo "t=" $t
 [ $MIMD_TIME -eq $t ] ||
     echo "\$MIMD_TIME ($MIMD_TIME) != dt*nsteps (=$t) in $MDP_FILE\n";exit 1
-
-# Is nstxtcout * dt == $MIMD_RUN ?
-t=$(grep -E "nstxtcout|dt") $MDP_FILE |
-    awk \'BEGIN{tmp=1} {tmp*\$3} END{print t}\')
-[ $MIMD_TIME -eq $t ] ||
-    echo "\$MIMD_TIME ($MIMD_TIME) != dt*nstxtcout (=$t) in $MDP_FILE\n";exit 1
 
 # Is re=assign intial velcity in mdp ?
 ret=$(grep "gen_vel" $MDP_FILE | grep "yes")
@@ -85,3 +84,19 @@ cycle=0
 pre_run
 
 # 1st ranking processing
+best_ranker=($(ranking $cycle))
+
+# start loop
+while isFullfill $cycle; do
+    $((cycle++))
+    
+    # dose ${best_ranker[@]} have value?
+    if [ -z $best_ranker ]; then
+        best_ranker=($(ranking $((cycle-1))))
+    fi
+    
+    # grompp -> mdrun
+    sequential_run $cycle $best_ranker
+    # ranking
+    best_ranker=($(rankinge$cycle))
+done
