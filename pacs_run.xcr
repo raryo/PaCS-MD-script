@@ -1,4 +1,5 @@
 # vim:set foldmethod=marker:
+-*- mode: perl;-*-
 use base qw (core limit);
 system "source /lustre/gi58/i58005/apps/gmx2016_3/bin/GMXRC.bash";
 
@@ -27,8 +28,8 @@ my $TOPOLOGY   = "../solvate/hp1a_cg_solv.top";
 my $RUN_TIME   = 500;
 # define ranking key prefix
 my $XVG_PREFIX = "dist";
-# defin mesure script
-my $MESURE     = "./mesure.sh";
+# defin measure script
+my $MEASURE    = "./measure.sh";
 #define generate next init script
 my $GENINI     = "./generate_inits.pl";
 # define the number of frames of trajectry
@@ -156,7 +157,7 @@ sub template {
             'JS_limit_time' => $LIMIT_TIME,
             'exe0'          => "$GROMPP $INIT_GRO $TOPOLOGY 0 0",
             'exe1'          => "$SHORTRUN 0 0 ",
-            'exe2'          => "$MESURE $cycle 0 $RUN_TIME $XVG_PREFIX",
+            'exe2'          => "$MEASURE $cycle 0 $RUN_TIME $XVG_PREFIX",
             'before'        => sub { mkdir "cyc$cycle" },
             'after'         => sub { system "mv pre_run_* cyc$cycle" },
         );
@@ -176,7 +177,7 @@ sub template {
             },
             'exe1'          => $SHORTRUN,
             'arg1_0@'       => sub { "$cycle $VALUE[0]" },
-            'exe2'          => $MESURE,
+            'exe2'          => $MEASURE,
             'arg2_0@'       => sub { "$cycle $VALUE[0] $RUN_TIME $XVG_PREFIX" },
             'RANGE0'        => [0 .. $PACS_THREADS-1],
             'before'        => sub { mkdir "cyc$cycle"; },
