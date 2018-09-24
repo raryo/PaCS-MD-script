@@ -1,5 +1,5 @@
+#!/bin/bash -e
 # vim:set foldmethod=marker:
-#!/bin/bash -xv
 #PBS -l nodes=16:ppn=16
 #cd $PBS_O_WORKDIR
 #source /home/rshimura/apps/gmx2016_3/bin/GMXRC.bash
@@ -35,7 +35,7 @@ PACS_THREADS=8
 # PaCS terinate condition
 function isFullfill() {
     local c=$1
-    if [ $c -ge 150 ]; then
+    if [ $c -ge 5 ]; then
         return 1
     else
         return 0
@@ -48,14 +48,15 @@ function isFullfill() {
 #################################################
 
 # Is nsteps * dt == $MIMD_RUN ?
-t=$(grep -E "nsteps|dt" $MDP_FILE | awk 'BEGIN{tmp=1} {tmp*=$3} END{print t}')
-echo "t=" $t
-[ $MIMD_TIME -eq $t ] ||
-    echo "\$MIMD_TIME ($MIMD_TIME) != dt*nsteps (=$t) in $MDP_FILE\n";exit 1
+t=$(grep -E "nsteps|dt" $MDP_FILE |
+    awk 'BEGIN{tmp=1} {tmp*=$3} END{print tmp}')
+[ $MIMD_TIME = $t ] ||
+    { echo "\$MIMD_TIME (=$MIMD_TIME) != dt*nsteps (=$t) in $MDP_FILE\n"; exit 1; }
 
 # Is re=assign intial velcity in mdp ?
 ret=$(grep "gen_vel" $MDP_FILE | grep "yes")
-[ ! $ret ] || echo "You should \'gen_vel = yes\'\n"; exit 1
+[ ! $ret ] || 
+    { echo "You should \'gen_vel = yes\'\n"; exit 1; }
 
 
 #################################################
@@ -96,7 +97,8 @@ while isFullfill $cycle; do
     fi
     
     # grompp -> mdrun
-    sequential_run $cycle $best_ranker
+    ret=$(sequential_run $cycle $best_ranker)
+    [ ret ] || exit 1
     # ranking
     best_ranker=($(rankinge$cycle))
 done
