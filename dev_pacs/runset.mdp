@@ -4,15 +4,11 @@ define  =
 ;Run parms
 integrator      = md
 dt              = 0.002     ; 2 fs
-nsteps          = 50    ; 0.01 ns (1 ps)
+nsteps          = 2500    ;  (5 ps)
 cutoff-scheme   = Verlet
 nstcomm         = 10
 
 ;Output prams
-nstxout         = 500
-nstvout         = 500
-nstfout         = 500
-nstenergy       = 500
 nstxtcout       = 500
 
 ;Bond params
@@ -40,9 +36,9 @@ fourierspacing   = 0.10
 
 ;Berendsen couplingis on
 tcoupl          = V-rescale
-tc-grps         = no_water_ion Water_and_ions
+tc-grps         = nowation Water_and_ions
 tau_t           = 0.1 0.1
-ref_t           = 300 300
+ref_t           = 350 350
 
 ;Pressure coupling is on
 pcoupl          = Parrinello-Rahman
@@ -54,8 +50,8 @@ refcoord_scaling    = com
 
 ;Generate velocities is off
 gen_vel         = yes
-gen_temp        = 300
-gen_seed        = 1213
+gen_temp        = 350
+gen_seed        = -1
 
 ;PBC
 pbc             = xyz

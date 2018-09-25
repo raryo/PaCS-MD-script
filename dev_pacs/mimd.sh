@@ -12,7 +12,7 @@ function run_grompp() {
         -p $GROTOP_FILE \
         -n $INDEX_FILE \
         -c $init \
-        -o cyc$cyc/toopl$thre.tpr \
+        -o cyc$cyc/topol${thre}.tpr \
         -po cyc$cyc/${cyc}-${thre}.out.mdp \
         -maxwarn 1
 }
@@ -25,14 +25,14 @@ function run_mdrun_multi() {
     gmx mdrun \
         -s cyc$cyc/topol \
         -multi $PACS_THREADS \
-        -deffnm cyc$cyc/${cyc}-
+        -deffnm cyc$cyc/
 }
 
 
 # when run grompp and mdrun for the pre-run sequentialy.
 function pre_run() {
-    run_grompp 0 $INIT_STRC
-    run_mdrun_multi 0
+    run_grompp 0 0 $INIT_STRC
+    gmx mdrun -s cyc0/topol0.tpr -deffnm cyc0/0
 }
 
 

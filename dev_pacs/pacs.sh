@@ -1,9 +1,10 @@
 #!/bin/bash -e
 # vim:set foldmethod=marker:
-#PBS -l nodes=16:ppn=16
-#cd $PBS_O_WORKDIR
+#PBS -l nodes=tosto55:ppn=12
+cd $PBS_O_WORKDIR
+source /usr/local/Modules/init/profile.sh
+module load gromacs/2018.3
 #source /home/rshimura/apps/gmx2016_3/bin/GMXRC.bash
-#export OMP_NUM_THREADS=1
 
 
 #################################################
@@ -11,13 +12,13 @@
 #################################################
 
 # Index file name include the path
-INDEX_FILE="index.ndx"
+INDEX_FILE="./index.ndx"
 # Mdp file name include the path
 MDP_FILE="./runset.mdp"
 # Initial structure file
-INIT_STRC="../lysWaaap_lysZ_lysY/heat/md9.gro"
+INIT_STRC="./md9.gro"
 # Topology file 
-GROTOP_FILE="../../grotop/LysYZW.top"
+GROTOP_FILE="./grotop/LysYZW.top"
 # Script for functions to perform MIMD (Multiple Independent MD)
 MIMD_FUNC="./mimd.sh"
 # Script for functions to perform Rank-process 
@@ -28,10 +29,10 @@ RANK_FUNC="./ranking.sh"
 # PaCS-MD PARAMETARS                            #
 #################################################
 
-# MIMD run time i.e. The number of snapshots to be output
-MIMD_TIME='0.1'
+# MIMD run time [ps], i.e. The number of snapshots to be output
+MIMD_TIME='5'
 # The number of thread
-PACS_THREADS=8
+PACS_THREADS=3
 # PaCS terinate condition
 function isFullfill() {
     local c=$1
@@ -53,7 +54,7 @@ t=$(grep -E "nsteps|dt" $MDP_FILE |
 [ $MIMD_TIME = $t ] ||
     { echo "\$MIMD_TIME (=$MIMD_TIME) != dt*nsteps (=$t) in $MDP_FILE\n"; exit 1; }
 
-# Is re=assign intial velcity in mdp ?
+# Is re-assign intial velcity in mdp ?
 ret=$(grep "gen_vel" $MDP_FILE | grep "yes")
 [ ! $ret ] || 
     { echo "You should \'gen_vel = yes\'\n"; exit 1; }
@@ -85,6 +86,7 @@ cycle=0
 pre_run
 
 # 1st ranking processing
+[ -d cyc${cycle} ] || mkdir cyc${cycle}
 best_ranker=($(ranking $cycle))
 
 # start loop
@@ -97,6 +99,7 @@ while isFullfill $cycle; do
     fi
     
     # grompp -> mdrun
+    [ -d cyc${cycle} ] || mkdir cyc${cycle}
     ret=$(sequential_run $cycle $best_ranker)
     [ ret ] || exit 1
     # ranking
