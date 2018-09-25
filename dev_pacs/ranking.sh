@@ -35,13 +35,11 @@ function generate_gro() {
     # check if does best_ranker.dat exist?
     [ -s cyc$cyc/best_ranker.dat ] || ranking $cyc
     # get best_ranker ids.
-    cyc=0
-    cat cyc$cyc/best_ranker.dat |
-        awk '{print "gmx trjconv -f cyc'$cyc'/" $1 ".xtc -s cyc'$cyc'/topol" $1 ".tpr -o cyc'$cyc'/" $1 "-" $2 ".gro -b " $2 " -e " $2}' |
-        bash <<EOF
-0
-EOF
-    ls cyc$cyc/*-*.gro
+    s=($(ls cyc$cyc/*-*.gro))
+    if [ -z $s ] ; then
+        perl -e ' my @high_ranker=`cat cyc'$cyc'/best_ranker.dat`;print @high_ranker; foreach (@high_ranker){ my ($t, $s, @dump) = split; system "echo 0 | gmx trjconv -f cyc'$cyc'/".$t.".xtc"." -s cyc'$cyc'/topol".$t.".tpr"." -o cyc'$cyc'/".$t."-".$s.".gro"." -b ".$s." -e ".$s;}' 
+    fi
+
 }
 
 
@@ -50,7 +48,7 @@ EOF
 function ranking() {
     local cyc=$1
 
-    if [ ! -e cyc$cyc/best_ranker.dat ]; then
+    if [ ! -s cyc$cyc/best_ranker.dat ]; then
         # run gmx's distance
         for i in $(seq 0 $((PACS_THREADS-1)));do
             mesure_distance $cyc $i
@@ -59,10 +57,11 @@ function ranking() {
         merge_xvg $cyc
     fi
     generate_gro $cyc
+    ls cyc$cyc/*-*.gro
 }
 
 # ranking for only pre
-function pre-ranking() {
+function pre_ranking() {
     local cyc=0
 
     if [ ! -s cyc$cyc/best_ranker.dat ]; then
@@ -72,5 +71,8 @@ function pre-ranking() {
         merge_xvg $cyc
     fi
     generate_gro $cyc
+    ls cyc$cyc/*-*.gro
     
 }
+
+

@@ -1,0 +1,264 @@
+                     :-) GROMACS - gmx distance, 2018.3 (-:
+
+                            GROMACS is written by:
+     Emile Apol      Rossen Apostolov      Paul Bauer     Herman J.C. Berendsen
+    Par Bjelkmar    Aldert van Buuren   Rudi van Drunen     Anton Feenstra  
+  Gerrit Groenhof    Aleksei Iupinov   Christoph Junghans   Anca Hamuraru   
+ Vincent Hindriksen Dimitrios Karkoulis    Peter Kasson        Jiri Kraus    
+  Carsten Kutzner      Per Larsson      Justin A. Lemkul    Viveca Lindahl  
+  Magnus Lundborg   Pieter Meulenhoff    Erik Marklund      Teemu Murtola   
+    Szilard Pall       Sander Pronk      Roland Schulz     Alexey Shvetsov  
+   Michael Shirts     Alfons Sijbers     Peter Tieleman    Teemu Virolainen 
+ Christian Wennberg    Maarten Wolf   
+                           and the project leaders:
+        Mark Abraham, Berk Hess, Erik Lindahl, and David van der Spoel
+
+Copyright (c) 1991-2000, University of Groningen, The Netherlands.
+Copyright (c) 2001-2017, The GROMACS development team at
+Uppsala University, Stockholm University and
+the Royal Institute of Technology, Sweden.
+check out http://www.gromacs.org for more information.
+
+GROMACS is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation; either version 2.1
+of the License, or (at your option) any later version.
+
+GROMACS:      gmx distance, version 2018.3
+Executable:   /usr/local/package/gromacs/2018_3/bin/gmx
+Data prefix:  /usr/local/package/gromacs/2018_3
+Working dir:  /users/rshimura/works/dev_pacs/PaCS-MD-script/dev_pacs
+Command line:
+  gmx distance -f cyc0/0.xtc -s cyc0/topol0.tpr -b 0 -e 5 -oall cyc0/dist0.xvg
+
+Reading file cyc0/topol0.tpr, VERSION 2018.3 (single precision)
+Reading file cyc0/topol0.tpr, VERSION 2018.3 (single precision)
+Reading frame       0 time    0.000   Reading frame       1 time    1.000   Reading frame       2 time    2.000   Reading frame       3 time    3.000   Reading frame       4 time    4.000   Reading frame       5 time    5.000   Last frame          5 time    5.000   
+Analyzed 6 frames, last time 5.000
+
+GROMACS reminds you: "If I could remember the names of all these particles, I’d be a botanist." (Albert Einstein)
+
+ls: cannot access cyc0/*-*.gro: No such file or directory
+                     :-) GROMACS - gmx trjconv, 2018.3 (-:
+
+                            GROMACS is written by:
+     Emile Apol      Rossen Apostolov      Paul Bauer     Herman J.C. Berendsen
+    Par Bjelkmar    Aldert van Buuren   Rudi van Drunen     Anton Feenstra  
+  Gerrit Groenhof    Aleksei Iupinov   Christoph Junghans   Anca Hamuraru   
+ Vincent Hindriksen Dimitrios Karkoulis    Peter Kasson        Jiri Kraus    
+  Carsten Kutzner      Per Larsson      Justin A. Lemkul    Viveca Lindahl  
+  Magnus Lundborg   Pieter Meulenhoff    Erik Marklund      Teemu Murtola   
+    Szilard Pall       Sander Pronk      Roland Schulz     Alexey Shvetsov  
+   Michael Shirts     Alfons Sijbers     Peter Tieleman    Teemu Virolainen 
+ Christian Wennberg    Maarten Wolf   
+                           and the project leaders:
+        Mark Abraham, Berk Hess, Erik Lindahl, and David van der Spoel
+
+Copyright (c) 1991-2000, University of Groningen, The Netherlands.
+Copyright (c) 2001-2017, The GROMACS development team at
+Uppsala University, Stockholm University and
+the Royal Institute of Technology, Sweden.
+check out http://www.gromacs.org for more information.
+
+GROMACS is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation; either version 2.1
+of the License, or (at your option) any later version.
+
+GROMACS:      gmx trjconv, version 2018.3
+Executable:   /usr/local/package/gromacs/2018_3/bin/gmx
+Data prefix:  /usr/local/package/gromacs/2018_3
+Working dir:  /users/rshimura/works/dev_pacs/PaCS-MD-script/dev_pacs
+Command line:
+  gmx trjconv -f cyc0/0.xtc -s cyc0/topol0.tpr -o cyc0/0-4.000.gro -b 4.000 -e 4.000
+
+Will write gro: Coordinate file in Gromos-87 format
+Reading file cyc0/topol0.tpr, VERSION 2018.3 (single precision)
+Reading file cyc0/topol0.tpr, VERSION 2018.3 (single precision)
+Group     0 (         System) has 351802 elements
+Group     1 (        Protein) has 30591 elements
+Group     2 (      Protein-H) has 15227 elements
+Group     3 (        C-alpha) has  1963 elements
+Group     4 (       Backbone) has  5889 elements
+Group     5 (      MainChain) has  7858 elements
+Group     6 (   MainChain+Cb) has  9639 elements
+Group     7 (    MainChain+H) has  9704 elements
+Group     8 (      SideChain) has 20887 elements
+Group     9 (    SideChain-H) has  7369 elements
+Group    10 (    Prot-Masses) has 30591 elements
+Group    11 (    non-Protein) has 321211 elements
+Group    12 (          Other) has   412 elements
+Group    13 (            NAP) has   296 elements
+Group    14 (            ADP) has    78 elements
+Group    15 (            UN1) has    38 elements
+Group    16 (             ZN) has     1 elements
+Group    17 (            Na+) has    43 elements
+Group    18 (            Cl-) has    16 elements
+Group    19 (            Ion) has    60 elements
+Group    20 (            NAP) has   296 elements
+Group    21 (            ADP) has    78 elements
+Group    22 (            UN1) has    38 elements
+Group    23 (             ZN) has     1 elements
+Group    24 (            Na+) has    43 elements
+Group    25 (            Cl-) has    16 elements
+Group    26 (          Water) has 320739 elements
+Group    27 (            SOL) has 320739 elements
+Group    28 (      non-Water) has 31063 elements
+Group    29 ( Water_and_ions) has 320799 elements
+Select a group: Reading frame       0 time    0.000   Reading frame       0 time    4.000   
+Precision of cyc0/0.xtc is 0.001 (nm)
+Using output precision of 0.001 (nm)
+ ->  frame      0 time    4.000      Last frame          0 time    4.000   
+
+
+GROMACS reminds you: "Can someone please tell Icarus that he's not the only one falling from the sky?" (Urban Dance Squad)
+
+                     :-) GROMACS - gmx trjconv, 2018.3 (-:
+
+                            GROMACS is written by:
+     Emile Apol      Rossen Apostolov      Paul Bauer     Herman J.C. Berendsen
+    Par Bjelkmar    Aldert van Buuren   Rudi van Drunen     Anton Feenstra  
+  Gerrit Groenhof    Aleksei Iupinov   Christoph Junghans   Anca Hamuraru   
+ Vincent Hindriksen Dimitrios Karkoulis    Peter Kasson        Jiri Kraus    
+  Carsten Kutzner      Per Larsson      Justin A. Lemkul    Viveca Lindahl  
+  Magnus Lundborg   Pieter Meulenhoff    Erik Marklund      Teemu Murtola   
+    Szilard Pall       Sander Pronk      Roland Schulz     Alexey Shvetsov  
+   Michael Shirts     Alfons Sijbers     Peter Tieleman    Teemu Virolainen 
+ Christian Wennberg    Maarten Wolf   
+                           and the project leaders:
+        Mark Abraham, Berk Hess, Erik Lindahl, and David van der Spoel
+
+Copyright (c) 1991-2000, University of Groningen, The Netherlands.
+Copyright (c) 2001-2017, The GROMACS development team at
+Uppsala University, Stockholm University and
+the Royal Institute of Technology, Sweden.
+check out http://www.gromacs.org for more information.
+
+GROMACS is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation; either version 2.1
+of the License, or (at your option) any later version.
+
+GROMACS:      gmx trjconv, version 2018.3
+Executable:   /usr/local/package/gromacs/2018_3/bin/gmx
+Data prefix:  /usr/local/package/gromacs/2018_3
+Working dir:  /users/rshimura/works/dev_pacs/PaCS-MD-script/dev_pacs
+Command line:
+  gmx trjconv -f cyc0/0.xtc -s cyc0/topol0.tpr -o cyc0/0-5.000.gro -b 5.000 -e 5.000
+
+Will write gro: Coordinate file in Gromos-87 format
+Reading file cyc0/topol0.tpr, VERSION 2018.3 (single precision)
+Reading file cyc0/topol0.tpr, VERSION 2018.3 (single precision)
+Group     0 (         System) has 351802 elements
+Group     1 (        Protein) has 30591 elements
+Group     2 (      Protein-H) has 15227 elements
+Group     3 (        C-alpha) has  1963 elements
+Group     4 (       Backbone) has  5889 elements
+Group     5 (      MainChain) has  7858 elements
+Group     6 (   MainChain+Cb) has  9639 elements
+Group     7 (    MainChain+H) has  9704 elements
+Group     8 (      SideChain) has 20887 elements
+Group     9 (    SideChain-H) has  7369 elements
+Group    10 (    Prot-Masses) has 30591 elements
+Group    11 (    non-Protein) has 321211 elements
+Group    12 (          Other) has   412 elements
+Group    13 (            NAP) has   296 elements
+Group    14 (            ADP) has    78 elements
+Group    15 (            UN1) has    38 elements
+Group    16 (             ZN) has     1 elements
+Group    17 (            Na+) has    43 elements
+Group    18 (            Cl-) has    16 elements
+Group    19 (            Ion) has    60 elements
+Group    20 (            NAP) has   296 elements
+Group    21 (            ADP) has    78 elements
+Group    22 (            UN1) has    38 elements
+Group    23 (             ZN) has     1 elements
+Group    24 (            Na+) has    43 elements
+Group    25 (            Cl-) has    16 elements
+Group    26 (          Water) has 320739 elements
+Group    27 (            SOL) has 320739 elements
+Group    28 (      non-Water) has 31063 elements
+Group    29 ( Water_and_ions) has 320799 elements
+Select a group: Reading frame       0 time    0.000   Reading frame       0 time    5.000   
+Precision of cyc0/0.xtc is 0.001 (nm)
+Using output precision of 0.001 (nm)
+ ->  frame      0 time    5.000      Last frame          0 time    5.000   
+
+
+GROMACS reminds you: "I was told I'd never make it to VP rank because I was too outspoken. Maybe so, but I think men will always find an excuse for keeping women in their 'place.' So, let's make that place the executive suite and start more of our own companies." (Jean Bartik, ENIAC developer)
+
+                     :-) GROMACS - gmx trjconv, 2018.3 (-:
+
+                            GROMACS is written by:
+     Emile Apol      Rossen Apostolov      Paul Bauer     Herman J.C. Berendsen
+    Par Bjelkmar    Aldert van Buuren   Rudi van Drunen     Anton Feenstra  
+  Gerrit Groenhof    Aleksei Iupinov   Christoph Junghans   Anca Hamuraru   
+ Vincent Hindriksen Dimitrios Karkoulis    Peter Kasson        Jiri Kraus    
+  Carsten Kutzner      Per Larsson      Justin A. Lemkul    Viveca Lindahl  
+  Magnus Lundborg   Pieter Meulenhoff    Erik Marklund      Teemu Murtola   
+    Szilard Pall       Sander Pronk      Roland Schulz     Alexey Shvetsov  
+   Michael Shirts     Alfons Sijbers     Peter Tieleman    Teemu Virolainen 
+ Christian Wennberg    Maarten Wolf   
+                           and the project leaders:
+        Mark Abraham, Berk Hess, Erik Lindahl, and David van der Spoel
+
+Copyright (c) 1991-2000, University of Groningen, The Netherlands.
+Copyright (c) 2001-2017, The GROMACS development team at
+Uppsala University, Stockholm University and
+the Royal Institute of Technology, Sweden.
+check out http://www.gromacs.org for more information.
+
+GROMACS is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation; either version 2.1
+of the License, or (at your option) any later version.
+
+GROMACS:      gmx trjconv, version 2018.3
+Executable:   /usr/local/package/gromacs/2018_3/bin/gmx
+Data prefix:  /usr/local/package/gromacs/2018_3
+Working dir:  /users/rshimura/works/dev_pacs/PaCS-MD-script/dev_pacs
+Command line:
+  gmx trjconv -f cyc0/0.xtc -s cyc0/topol0.tpr -o cyc0/0-3.000.gro -b 3.000 -e 3.000
+
+Will write gro: Coordinate file in Gromos-87 format
+Reading file cyc0/topol0.tpr, VERSION 2018.3 (single precision)
+Reading file cyc0/topol0.tpr, VERSION 2018.3 (single precision)
+Group     0 (         System) has 351802 elements
+Group     1 (        Protein) has 30591 elements
+Group     2 (      Protein-H) has 15227 elements
+Group     3 (        C-alpha) has  1963 elements
+Group     4 (       Backbone) has  5889 elements
+Group     5 (      MainChain) has  7858 elements
+Group     6 (   MainChain+Cb) has  9639 elements
+Group     7 (    MainChain+H) has  9704 elements
+Group     8 (      SideChain) has 20887 elements
+Group     9 (    SideChain-H) has  7369 elements
+Group    10 (    Prot-Masses) has 30591 elements
+Group    11 (    non-Protein) has 321211 elements
+Group    12 (          Other) has   412 elements
+Group    13 (            NAP) has   296 elements
+Group    14 (            ADP) has    78 elements
+Group    15 (            UN1) has    38 elements
+Group    16 (             ZN) has     1 elements
+Group    17 (            Na+) has    43 elements
+Group    18 (            Cl-) has    16 elements
+Group    19 (            Ion) has    60 elements
+Group    20 (            NAP) has   296 elements
+Group    21 (            ADP) has    78 elements
+Group    22 (            UN1) has    38 elements
+Group    23 (             ZN) has     1 elements
+Group    24 (            Na+) has    43 elements
+Group    25 (            Cl-) has    16 elements
+Group    26 (          Water) has 320739 elements
+Group    27 (            SOL) has 320739 elements
+Group    28 (      non-Water) has 31063 elements
+Group    29 ( Water_and_ions) has 320799 elements
+Select a group: Reading frame       0 time    0.000   Reading frame       0 time    3.000   
+Precision of cyc0/0.xtc is 0.001 (nm)
+Using output precision of 0.001 (nm)
+ ->  frame      0 time    3.000      Last frame          0 time    3.000   
+
+
+GROMACS reminds you: "I Am Testing Your Grey Matter" (Red Hot Chili Peppers)
+
+/var/spool/torque/mom_priv/jobs/2085.brillantegw3.SC: line 94: 0: command not found

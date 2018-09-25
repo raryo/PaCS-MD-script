@@ -83,19 +83,19 @@ done
 cycle=0
 
 # start pre-short-run
-pre_run
+[ -d cyc${cycle} ] || mkdir cyc${cycle}
+#pre_run
 
 # 1st ranking processing
-[ -d cyc${cycle} ] || mkdir cyc${cycle}
-best_ranker=($(ranking $cycle))
+#best_ranker=$(pre_ranking)
 
 # start loop
 while isFullfill $cycle; do
-    $((cycle++))
+    cycle=$((cycle+1))
     
     # dose ${best_ranker[@]} have value?
     if [ -z $best_ranker ]; then
-        best_ranker=($(ranking $((cycle-1))))
+        best_ranker=$(ranking $((cycle-1)))
     fi
     
     # grompp -> mdrun
@@ -103,5 +103,5 @@ while isFullfill $cycle; do
     ret=$(sequential_run $cycle $best_ranker)
     [ ret ] || exit 1
     # ranking
-    best_ranker=($(rankinge$cycle))
+    best_ranker=$(rankinge$cycle)
 done
