@@ -44,13 +44,14 @@ function sequential_run() {
     
     # exit if (# inits != $PACS_THREADS)
     if [ ${#inits[@]} -ne $PACS_THREADS ]; then
+        echo ${#inits[@]}
         echo "Error in specifing inits structures"
         return 1;
     fi
     
     # run grompp for each thread
     for i in $(seq 0 $((PACS_THREADS-1)));do
-        run_grompp $cyc $i ${inits[$i]}
+        run_grompp $cyc $i cyc$((cyc-1))/${inits[$i]}
     done
     # run mdrun
     run_mdrun_multi $cyc

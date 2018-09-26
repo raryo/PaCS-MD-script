@@ -108,8 +108,8 @@ while isFullfill $cycle; do
     
     # grompp -> mdrun
     [ -d cyc${cycle} ] || mkdir cyc${cycle}
-    sequential_run $cycle $best_ranker || exit 1
+    sequential_run $cycle ${best_ranker[@]} || exit 1
     # ranking
     ranking $cycle
-    best_ranker=($(ls cyc$((cycle-1))/*-*.gro)
+    best_ranker=($(show_ranker $cycle))
 done
