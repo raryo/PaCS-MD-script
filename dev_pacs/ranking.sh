@@ -32,14 +32,19 @@ function merge_xvg() {
 function generate_gro() {
     local cyc=$1
 
-    # check if does best_ranker.dat exist?
-    [ -s cyc$cyc/best_ranker.dat ] || ranking $cyc
     # get best_ranker ids.
     s=($(ls cyc$cyc/*-*.gro))
     if [ -z $s ] ; then
         perl -e ' my @high_ranker=`cat cyc'$cyc'/best_ranker.dat`;print @high_ranker; foreach (@high_ranker){ my ($t, $s, @dump) = split; system "echo 0 | gmx trjconv -f cyc'$cyc'/".$t.".xtc"." -s cyc'$cyc'/topol".$t.".tpr"." -o cyc'$cyc'/".$t."-".$s.".gro"." -b ".$s." -e ".$s;}' 
     fi
 
+}
+
+# return ranking
+function show_ranker() {
+    local cyc=$1
+    cat cyc$cyc/best_ranker.dat |
+        awk '{ print $1"-"$2".gro" }'
 }
 
 
@@ -55,8 +60,8 @@ function ranking() {
         done
         # then, compile them
         merge_xvg $cyc
+        generate_gro $cyc
     fi
-    generate_gro $cyc
     ls cyc$cyc/*-*.gro
 }
 

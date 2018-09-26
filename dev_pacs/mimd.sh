@@ -22,7 +22,7 @@ function run_grompp() {
 function run_mdrun_multi() {
     local cyc=$1
     
-    gmx mdrun \
+    mpirun -np 24 gmx_mpi mdrun \
         -s cyc$cyc/topol \
         -multi $PACS_THREADS \
         -deffnm cyc$cyc/
@@ -32,7 +32,7 @@ function run_mdrun_multi() {
 # when run grompp and mdrun for the pre-run sequentialy.
 function pre_run() {
     run_grompp 0 0 $INIT_STRC
-    gmx mdrun -s cyc0/topol0.tpr -deffnm cyc0/0
+    mpirun -np 24 gmx_mpi mdrun -s cyc0/topol0.tpr -deffnm cyc0/0
 }
 
 

@@ -1,10 +1,14 @@
-#!/bin/bash -e
-# vim:set foldmethod=marker:
-#PBS -l nodes=tosto55:ppn=12
+#!/bin/sh 
+#PBS -q h-debug
+#PBS -l select=2:mpiprocs=6:ompthreads=6
+#PBS -W group_list=gi58
+#PBS -l walltime=00:30:00
+
 cd $PBS_O_WORKDIR
-source /usr/local/Modules/init/profile.sh
-module load gromacs/2018.3
-#source /home/rshimura/apps/gmx2016_3/bin/GMXRC.bash
+source /lustre/gi58/i58005/apps/gmx2016_3/bin/GMXRC.bash
+. /etc/profile.d/modules.sh
+
+module load intel/16.0.3.210 cuda/8.0.44
 
 
 #################################################
@@ -32,7 +36,7 @@ RANK_FUNC="./ranking.sh"
 # MIMD run time [ps], i.e. The number of snapshots to be output
 MIMD_TIME='5'
 # The number of thread
-PACS_THREADS=3
+PACS_THREADS=2
 # PaCS terinate condition
 function isFullfill() {
     local c=$1
@@ -56,7 +60,7 @@ t=$(grep -E "nsteps|dt" $MDP_FILE |
 
 # Is re-assign intial velcity in mdp ?
 ret=$(grep "gen_vel" $MDP_FILE | grep "yes")
-[ ! $ret ] || 
+[ -n "$ret" ] || 
     { echo "You should \'gen_vel = yes\'\n"; exit 1; }
 
 
@@ -83,25 +87,29 @@ done
 cycle=0
 
 # start pre-short-run
-[ -d cyc${cycle} ] || mkdir cyc${cycle}
-#pre_run
+if [ ! -d cyc${cycle} ];then
+    mkdir cyc${cycle}
+fi
+pre_run
 
 # 1st ranking processing
-#best_ranker=$(pre_ranking)
+pre_ranking
+best_ranker=($(show_ranker $cycle))
 
 # start loop
 while isFullfill $cycle; do
     cycle=$((cycle+1))
     
     # dose ${best_ranker[@]} have value?
-    if [ -z $best_ranker ]; then
-        best_ranker=$(ranking $((cycle-1)))
+    if [ -z "$best_ranker" ]; then
+        best_ranker=($(show_ranker $((cycle-1))))
     fi
+    echo "@cycle$cycle: best_ranker=${best_ranker[@]} <- $cycle-1"
     
     # grompp -> mdrun
     [ -d cyc${cycle} ] || mkdir cyc${cycle}
-    ret=$(sequential_run $cycle $best_ranker)
-    [ ret ] || exit 1
+    sequential_run $cycle $best_ranker || exit 1
     # ranking
-    best_ranker=$(rankinge$cycle)
+    ranking $cycle
+    best_ranker=($(ls cyc$((cycle-1))/*-*.gro)
 done
