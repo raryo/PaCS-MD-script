@@ -4,7 +4,7 @@ define  =
 ;Run parms
 integrator      = md
 dt              = 0.002     ; 2 fs
-nsteps          = 2500    ;  (5 ps)
+nsteps          = 25000    ;  (5 ps)
 cutoff-scheme   = Verlet
 nstcomm         = 10
 

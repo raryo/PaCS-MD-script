@@ -1,6 +1,6 @@
 #!/bin/sh 
 #PBS -q h-debug
-#PBS -l select=2:mpiprocs=6:ompthreads=6
+#PBS -l select=4:mpiprocs=6:ompthreads=6
 #PBS -W group_list=gi58
 #PBS -l walltime=00:30:00
 
@@ -34,9 +34,9 @@ RANK_FUNC="./ranking.sh"
 #################################################
 
 # MIMD run time [ps], i.e. The number of snapshots to be output
-MIMD_TIME='5'
+MIMD_TIME='50'
 # The number of thread
-PACS_THREADS=2
+PACS_THREADS=4
 # PaCS terinate condition
 function isFullfill() {
     local c=$1
